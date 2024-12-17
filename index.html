@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Visualization: Letter "Б"</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+    }
+    #canvas {
+      flex: 1;
+      display: block;
+    }
+    #controls {
+      padding: 10px;
+      background: #f4f4f4;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label {
+      font-size: 14px;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    .views {
+      display: flex;
+      gap: 5px;
+    }
+    .views button {
+      padding: 5px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      background: #fff;
+    }
+    .views button:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <h2>3D Visualization: Letter "Ш"</h2>
+    <div class="control-group">
+      <label for="rotateX">Rotate X</label>
+      <input id="rotateX" type="range" min="0" max="6.28" step="0.01" value="0">
+    </div>
+    <div class="control-group">
+      <label for="rotateY">Rotate Y</label>
+      <input id="rotateY" type="range" min="0" max="6.28" step="0.01" value="0">
+    </div>
+    <div class="control-group">
+      <label for="rotateZ">Rotate Z</label>
+      <input id="rotateZ" type="range" min="0" max="6.28" step="0.01" value="0">
+    </div>
+    <div class="control-group">
+      <label for="translateX">Translate X</label>
+      <input id="translateX" type="range" min="-5" max="5" step="0.1" value="0">
+    </div>
+    <div class="control-group">
+      <label for="translateY">Translate Y</label>
+      <input id="translateY" type="range" min="-5" max="5" step="0.1" value="0">
+    </div>
+    <div class="control-group">
+      <label for="translateZ">Translate Z</label>
+      <input id="translateZ" type="range" min="-5" max="5" step="0.1" value="0">
+    </div>
+    <div class="control-group">
+      <label for="scale">Scale</label>
+      <input id="scale" type="range" min="0.1" max="2" step="0.1" value="1">
+    </div>
+    <div class="views">
+      <button data-view="Oxy">View Oxy</button>
+      <button data-view="Oxz">View Oxz</button>
+      <button data-view="Oyz">View Oyz</button>
+      <button data-view="Oxyz">View Oxyz</button>
+    </div>
+  </div>
+  <canvas id="canvas"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script>
+    // Инициализация сцены
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Свет
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(10, 10, 10);
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    // Координатные оси и сетка
+    const axesHelper = new THREE.AxesHelper(5);
+    scene.add(axesHelper);
+
+    const gridHelper = new THREE.GridHelper(20, 20);
+    scene.add(gridHelper);
+
+    // Создание буквы "Б"
+    const shape = new THREE.Shape();
+
+    // Верхняя горизонтальная линия
+    shape.moveTo(-2, 5);
+    shape.lineTo(2, 5);
+
+    // Правая вертикальная линия
+    shape.lineTo(2, 3);
+
+    // Верхняя дуга
+    shape.quadraticCurveTo(1.5, 4, 0, 4);
+
+    // Левая вертикальная линия
+    shape.lineTo(-2, 4);
+
+    // Средняя горизонтальная линия
+    shape.lineTo(-2, 2);
+    shape.lineTo(1, 2);
+
+    // Нижняя дуга
+    shape.quadraticCurveTo(2, 1, 1, 0);
+
+    // Нижняя горизонтальная линия
+    shape.lineTo(-2, 0);
+
+    // Замкнуть контур
+    shape.lineTo(-2, 5);
+
+    const extrudeSettings = {
+      depth: 1,
+      bevelEnabled: true,
+      bevelThickness: 0.2,
+      bevelSize: 0.2,
+      bevelSegments: 2
+    };
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+    const letterSh = new THREE.Mesh(geometry, material);
+    scene.add(letterSh);
+
+    // Позиция камеры (по умолчанию Oxyz)
+    camera.position.set(5, 5, 10);
+    camera.lookAt(0, 2.5, 0);
+
+    // Анимация
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Управление ползунками
+    document.getElementById('rotateX').addEventListener('input', (event) => {
+      letterSh.rotation.x = parseFloat(event.target.value);
+    });
+
+    document.getElementById('rotateY').addEventListener('input', (event) => {
+      letterSh.rotation.y = parseFloat(event.target.value);
+    });
+
+    document.getElementById('rotateZ').addEventListener('input', (event) => {
+      letterSh.rotation.z = parseFloat(event.target.value);
+    });
+
+    document.getElementById('translateX').addEventListener('input', (event) => {
+      letterSh.position.x = parseFloat(event.target.value);
+    });
+
+    document.getElementById('translateY').addEventListener('input', (event) => {
+      letterSh.position.y = parseFloat(event.target.value);
+    });
+
+    document.getElementById('translateZ').addEventListener('input', (event) => {
+      letterSh.position.z = parseFloat(event.target.value);
+    });
+
+    document.getElementById('scale').addEventListener('input', (event) => {
+      const scale = parseFloat(event.target.value);
+      letterSh.scale.set(scale, scale, scale);
+    });
+
+    // Камеры для разных видов
+    const views = {
+      Oxy: () => {
+        camera.position.set(0, 0, 10);
+        camera.lookAt(0, 0, 0);
+      },
+      Oxz: () => {
+        camera.position.set(0, 10, 0);
+        camera.lookAt(0, 0, 0);
+      },
+      Oyz: () => {
+        camera.position.set(10, 0, 0);
+        camera.lookAt(0, 0, 0);
+      },
+      Oxyz: () => {
+        camera.position.set(5, 5, 10);
+        camera.lookAt(0, 2.5, 0);
+      }
+    };
+
+    // Обработчики кнопок переключения видов
+    document.querySelectorAll('.views button').forEach(button => {
+      button.addEventListener('click', () => {
+        const view = button.dataset.view;
+        views[view]();
+      });
+    });
+  </script>
+</body>
+</html>
